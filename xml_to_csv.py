@@ -64,10 +64,18 @@ def viplata(count):
 def header():
     global kInt
     k = []
+    head = []
     for i in root.iter('ВсеВыплаты'):
         addTag('Количество', i, k)
     kInt = [int(i) for i in k]
-    head = headerF, headerV * max(kInt), headerS
+
+    for i in headerF:
+        head.append(i)
+    for i in headerV * max(kInt):
+        head.append(i)
+    for i in headerS:
+        head.append(i)
+
     return head
 
 
