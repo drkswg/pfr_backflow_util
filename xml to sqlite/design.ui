@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>228</width>
-    <height>187</height>
+    <width>391</width>
+    <height>127</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Обратный поток</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>20</y>
+      <x>10</x>
+      <y>60</y>
       <width>181</width>
       <height>41</height>
      </rect>
@@ -35,8 +35,8 @@
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>80</y>
+      <x>200</x>
+      <y>20</y>
       <width>181</width>
       <height>20</height>
      </rect>
@@ -48,8 +48,8 @@
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>120</y>
+      <x>200</x>
+      <y>60</y>
       <width>181</width>
       <height>41</height>
      </rect>
@@ -61,6 +61,24 @@
     </property>
     <property name="text">
      <string>Выгрузка данных</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>181</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>XML в CSV</string>
     </property>
    </widget>
   </widget>

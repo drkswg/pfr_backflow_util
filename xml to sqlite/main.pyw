@@ -18,12 +18,16 @@ class XMLBaseApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.setupUi(self)
         self.pushButton.clicked.connect(self.xml_to_sql_run)
         self.pushButton_2.clicked.connect(self.sql_to_csv_run)
+        self.pushButton_3.clicked.connect(self.xml_to_csv_run)
 
     def get_directory(self):
         global files
 
         files = []
-        directory_first = QFileDialog.getExistingDirectory(self, 'Выберите папку', 'C:/')
+        try:
+            directory_first = QFileDialog.getExistingDirectory(self, 'Выберите папку', 'C:/')
+        except:
+            pass
         directory = os.listdir(directory_first)
 
         for i in directory:
@@ -31,12 +35,6 @@ class XMLBaseApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 files.append(directory_first + '/' + i)
             elif re.search('OVZR', i):
                 files.append(directory_first + '/' + i)
-
-    def openFile(self):
-        global file
-
-        file = QFileDialog.getOpenFileName(self, 'Выбор файла', 'C:/', 'XML-файлы (*.xml)')[0]
-        open(file, mode='r')
 
     def addTag(self, tag, iterator, spisok):
         var = iterator.find(tag)
@@ -170,6 +168,128 @@ class XMLBaseApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.sql_to_csv()
         else:
             pass
+
+    def openFile(self):
+        global file
+
+        file = QFileDialog.getOpenFileName(self, 'Выбор файла', 'C:/', 'XML-файлы (*.xml)')[0]
+
+    def check_file(self):
+        if re.search('ONVZ', file):
+            return 0
+        elif re.search('OVZR', file):
+            return 0
+        else:
+            return 1
+
+    def countV(self, iterator, spisok):
+        counter = iterator.find('ВсеВыплаты/Количество')
+
+        if counter != None:
+            counter = counter.text
+        else:
+            counter = ' '
+        spisok.append(counter)
+        c = int(counter)
+
+        return c
+
+    def viplata(self, count, iterator):
+        if count == max(kInt):
+            for v in iterator.findall('.//Выплата'):
+                self.addTag('ПризнакВыплаты', v, p)
+                self.addTag('СуммаКвыплате', v, p)
+                self.addTag('ДатаНачалаПериода', v, p)
+                self.addTag('ДатаКонцаПериода', v, p)
+                self.addTag('ВидВыплатыПоПЗ', v, p)
+        elif count < max(kInt):
+            for v in iterator.findall('.//Выплата'):
+                self.addTag('ПризнакВыплаты', v, p)
+                self.addTag('СуммаКвыплате', v, p)
+                self.addTag('ДатаНачалаПериода', v, p)
+                self.addTag('ДатаКонцаПериода', v, p)
+                self.addTag('ВидВыплатыПоПЗ', v, p)
+                for b in range(max(kInt) - count):
+                    self.blank(p)
+
+    def blank(self, spisok):
+        blanks = ' '
+        spisok.append(blanks)
+        spisok.append(blanks)
+        spisok.append(blanks)
+        spisok.append(blanks)
+        spisok.append(blanks)
+
+    def header(self, root):
+        global kInt
+
+        headerF = ['НомерВмассиве', 'НомерВыплатногоДела', 'КодРайона', 'СтраховойНомер', 'Фамилия', 'Имя', 'Отчество',
+                   'НомерСчета', 'КоличествоВыплат']
+        headerV = ['ПризнакВыплаты', 'СуммаКвыплате', 'ДатаНачалаПериода', 'ДатаКонцаПериода', 'ВидВыплатыПоПЗ']
+        headerS = ['ОтзываемаяСумма', 'ПризнакВозврата', 'СуммаВозвращена', 'КодВозврата', 'ПричинаПрекращенияВыплаты',
+                   'ДатаПрекращенияВыплаты', 'ДатаСмерти', 'НомерЗаписиАкта', 'ДатаЗаписиАкта', 'ДатаВыдачиДокумента']
+        k = []
+        head = []
+
+        for i in root.iter('ВсеВыплаты'):
+            self.addTag('Количество', i, k)
+        kInt = [int(i) for i in k]
+
+        for i in headerF:
+            head.append(i)
+        for i in headerV * max(kInt):
+            head.append(i)
+        for i in headerS:
+            head.append(i)
+
+        return head
+
+    def xml_to_csv(self):
+        global p
+        p = []
+
+        with open(file, 'r'):
+            tree = ET.parse(file)
+            root = tree.getroot()
+            output = open(file + '.csv', 'w', newline='', encoding='Windows-1251')
+            csvwriter = csv.writer(output, delimiter=';')
+            csvwriter.writerow(self.header(root))
+
+            for i in root.iter('ОтчетПоПолучателю'):
+                self.addTag('НомерВмассиве', i, p)
+                self.addTag('НомерВыплатногоДела', i, p)
+                self.addTag('КодРайона', i, p)
+                self.addTag('СтраховойНомер', i, p)
+                self.addTag('ФИО/Фамилия', i, p)
+                self.addTag('ФИО/Имя', i, p)
+                self.addTag('ФИО/Отчество', i, p)
+                self.addTag('НомерСчета', i, p)
+                self.viplata(self.countV(i, p), i)
+                self.addTag('ОтзываемаяСумма', i, p)
+                self.addTag('ПризнакВозврата', i, p)
+                self.addTag('СуммаВозвращена', i, p)
+                if re.search('ONVZ', file):
+                    self.addTag('КодНевозврата', i, p)
+                elif re.search('OVZR', file):
+                    self.addTag('КодВозврата', i, p)
+                self.addTag('ПричинаПрекращенияВыплаты', i, p)
+                self.addTag('ДатаПрекращенияВыплаты', i, p)
+                self.addTag('ДатаСмерти', i, p)
+                self.addTag('НомерЗаписиАкта', i, p)
+                self.addTag('ДатаЗаписиАкта', i, p)
+                self.addTag('ДатаВыдачиДокумента', i, p)
+                csvwriter.writerow(p)
+                p.clear()
+
+            output.close()
+            QMessageBox.information(self, 'Результат', 'Таблица успешно сформирована')
+
+    def xml_to_csv_run(self):
+        self.openFile()
+        if self.check_file() == 0:
+            self.xml_to_csv()
+        elif self.check_file() == 1:
+            QMessageBox.information(self, 'Результат', 'Неверный тип файла')
 
 
 def main():
