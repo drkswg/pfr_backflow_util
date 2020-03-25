@@ -104,7 +104,10 @@ class XMLBaseApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         QMessageBox.information(self, 'Результат', 'Файлы успешно загружены в БД')
 
     def xml_to_sql_run(self):
-        self.get_directory()
+        try:
+            self.get_directory()
+        except:
+            pass
 
         if len(files) > 0:
             self.xml_to_sql()
